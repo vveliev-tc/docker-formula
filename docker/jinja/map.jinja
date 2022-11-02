@@ -67,25 +67,7 @@
 
 
 # {%- set _config = salt['config.get'](tplroot, default={}) %}
-# {%- set defaults = salt['grains.filter_by'](
-#       default_settings,
-#       default=tplroot,
-#       merge=salt['grains.filter_by']( osfamilymap, grain='os_family',
-#         merge=salt['grains.filter_by']( osmap, grain='os',
-#           merge=salt['grains.filter_by']( osfingermap, grain='osfinger',
-#             merge=salt['grains.filter_by']( codenamemap, grain='oscodename',
-#               merge=salt['grains.filter_by']( osarchmap, grain='osarch',
-#                 merge=salt['grains.filter_by']( cpuarchmap, grain='cpuarch',
-#                   merge=salt['grains.filter_by']( _config, default='lookup'
-#                   )
-#                 )
-#               )
-#             )
-#           )
-#         )
-#       )
-#     )
-#  %}
+
 # {%- set d = salt['grains.filter_by']( {'defaults': defaults}, default='defaults', merge=_config) %}
 
 # {%- if 'wanted' in d and d.wanted and 'supported' in d and d.supported %}
