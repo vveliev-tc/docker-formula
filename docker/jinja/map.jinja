@@ -1,0 +1,145 @@
+{#- -*- coding: utf-8 -*- #}
+{#- vim: ft=jinja #}
+
+{#- Get the `tplroot` from `tpldir` #}
+{%- set tplroot = tpldir.split("/")[0] %}
+{%- from tplroot ~ "/jinja/libmapstack.jinja" import mapstack with context %}
+
+{#- Where to lookup parameters source files #}
+{%- set formula_param_dir = tplroot ~ "/parameters" %}
+
+{#- List of sources to lookup for parameters #}
+{#- Fallback to previously used grains plus minion `id` #}
+{%- set map_sources = [
+      "Y:G@osarch",
+      "Y:G@os_family",
+      "Y:G@os",
+      "Y:G@osfinger",
+      "C@" ~ tplroot ~ ":lookup",
+      "C@" ~ tplroot,
+      "Y:G@id",
+    ] %}
+
+{%- set _map_settings = mapstack(
+      matchers=["map_jinja.yaml"],
+      defaults={
+        "values": {"sources": map_sources}
+      },
+      log_prefix="map.jinja configuration: ",
+    )
+    | load_yaml %}
+
+{%- set map_sources = _map_settings | traverse("values:sources") %}
+{%- do salt["log.debug"](
+      "map.jinja: load parameters from sources:\n"
+      ~ map_sources
+      | yaml(False)
+    ) %}
+
+{#- Load formula parameters values #}
+{%- set _formula_matchers = ["defaults.yaml"] + map_sources %}
+
+{%- set _formula_settings = mapstack(
+      matchers=_formula_matchers,
+      dirs=[formula_param_dir],
+      defaults={
+        "values": {},
+        "merge_strategy": salt["config.get"](tplroot ~ ":strategy", None),
+        "merge_lists": salt["config.get"](tplroot ~ ":merge_lists", False),
+      },
+      log_prefix="map.jinja: ",
+    )
+    | load_yaml %}
+
+{#- Make sure to track `map.jinja` configuration with `_mapdata` #}
+{%- do _formula_settings["values"].update(
+      {
+        "map_jinja": _map_settings["values"]
+      }
+    ) %}
+
+{%- do salt["log.debug"]("map.jinja: save parameters in variable 'mapdata'") %}
+{%- set mapdata = _formula_settings["values"] %}
+
+{#- Per formula post-processing of `mapdata` if it exists #}
+{%- do salt["log.debug"]("map.jinja: post-processing of 'mapdata'") %}
+{%- include tplroot ~ "/jinja/post-map.jinja" ignore missing %}
+
+
+# {%- set _config = salt['config.get'](tplroot, default={}) %}
+# {%- set defaults = salt['grains.filter_by'](
+#       default_settings,
+#       default=tplroot,
+#       merge=salt['grains.filter_by']( osfamilymap, grain='os_family',
+#         merge=salt['grains.filter_by']( osmap, grain='os',
+#           merge=salt['grains.filter_by']( osfingermap, grain='osfinger',
+#             merge=salt['grains.filter_by']( codenamemap, grain='oscodename',
+#               merge=salt['grains.filter_by']( osarchmap, grain='osarch',
+#                 merge=salt['grains.filter_by']( cpuarchmap, grain='cpuarch',
+#                   merge=salt['grains.filter_by']( _config, default='lookup'
+#                   )
+#                 )
+#               )
+#             )
+#           )
+#         )
+#       )
+#     )
+#  %}
+# {%- set d = salt['grains.filter_by']( {'defaults': defaults}, default='defaults', merge=_config) %}
+
+# {%- if 'wanted' in d and d.wanted and 'supported' in d and d.supported %}
+#     {%- for c in d.wanted %}
+
+#         {%- if c in d.supported %}
+#             {%- set path = d.dir.base %}
+#             {%- set url = False %}
+
+#             {%- if c in ('docker', 'compose') and c in d.pkg and d.pkg[c] %}
+#                 {%- set p = d.pkg[c] %}
+#                 {%- if grains.os == 'Windows' %}
+#                     {%- do p.update({'path': '%s%sbin%s'|format(d.dir.base, d.div, d.div)}) %}
+#                 {%- else %}
+#                     {%- do p.update({ 'path': '%s/%s%s-%s/bin/'|format(d.dir.base, '' if c == 'docker' else 'docker-', c, p.version) }) %}
+#                 {%- endif %}
+
+#                 {%- if p.use_upstream == 'archive' %}
+#                     {%- if c == 'docker' %}
+#                         {%- set url = '%s/%s/%s-%s.%s'|format(p.uri_a, d.arch, c, p.version, p.suffix) %}
+#                         {%- do p.archive.update({ 'source': url }) %}
+#                     {%- endif %}
+#                     {%- if 'source_hash' in p.archive and p.archive.source_hash %}
+#                         {%- do p.archive.update({'name': p.path, 'source_hash': p.archive.source_hash}) %}
+#                     {%- else %}
+#                         {%- do p.archive.update({'name': p.path, 'source_hash': url ~ '.sha256'}) %}
+#                     {%- endif %}
+
+#                 {%- elif p.use_upstream == 'binary' %}
+#                     {%- if 'source_hash' in p.binary and p.binary.source_hash %}
+#                         {%- do p.binary.update({'name': p.path, 'source_hash': p.binary.source_hash}) %}
+#                     {%- else %}
+#                         {%- set url = p.binary.source %}
+#                         {%- do p.binary.update({'name': p.path, 'source_hash': url ~ '.sha256'}) %}
+#                     {%- endif %}
+
+#                 {%- elif p.use_upstream == 'desktop' %}
+#                     {%- if c == 'docker' %}
+#                         {%- set url = '%s%s'|format(p.uri_d, p.suffix) %}
+#                         {%- do p.desktop.update({ 'source': url }) %}
+#                     {%- endif %}
+#                     {%- if 'source_hash' in p.desktop and p.desktop.source_hash %}
+#                         {%- do p.desktop.update({'name': p.path, 'source_hash': p.desktop.source_hash}) %}
+#                     {%- else %}
+#                         {%- do p.desktop.update({'name': p.path, 'source_hash': url ~ '.sha256'}) %}
+#                     {%- endif %}
+
+#                 {%- endif %}
+#                 ## Persistance
+#                 {%- do d.pkg.update({ c: p }) %}
+
+#             {%- endif %}
+#         {%- endif %}
+#     {%- endfor %}
+# {%- endif %}
+
+# {%- set data = d %}

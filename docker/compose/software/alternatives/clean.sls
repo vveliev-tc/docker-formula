@@ -2,7 +2,7 @@
 # vim: ft=sls
 
 {%- set tplroot = tpldir.split('/')[0] %}
-{%- from tplroot ~ "/map.jinja" import data as d with context %}
+{%- from tplroot ~ "/jinja/map.jinja" import data as d with context %}
 
     {%- if d.linux.altpriority|int > 0 and grains.kernel == 'Linux' and grains.os_family not in ('Arch',) %}
         {%- for cmd in d.pkg.compose.commands|unique %}

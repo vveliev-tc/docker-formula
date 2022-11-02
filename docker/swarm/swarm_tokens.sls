@@ -2,7 +2,7 @@
 # vim: ft=sls
 
 {%- set tplroot = tpldir.split('/')[0] %}
-{%- from tplroot ~ "/map.jinja" import data as d with context %}
+{%- from tplroot ~ "/jinja/map.jinja" import data as d with context %}
 
     {%- if 'swarm_tokens' in d.swarm and d.swarm.swarm_tokens %}
 

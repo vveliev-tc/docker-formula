@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ft=sls
 {%- set tplroot = tpldir.split('/')[0] %}
-{%- from tplroot ~ "/map.jinja" import data as d with context %}
+{%- from tplroot ~ "/jinja/map.jinja" import data as d with context %}
 
 {%- set sls_docker_software_clean = tplroot ~ '.software.clean' %}
 {%- set sls_compose_software_clean = tplroot ~ '.compose.software.clean' %}

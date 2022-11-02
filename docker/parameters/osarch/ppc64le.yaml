@@ -1,0 +1,23 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('osarch') == ppc64le.
+#
+# You just need to add the key:values for this `osarch` that differ
+# from `defaults.yaml`.
+#
+# If you do not need to provide defaults via the `osarch` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+---
+values:
+  arch: ppc64le
+  pkg:
+    docker:
+      version: '18.06.3-ce'
+      use_upstream: archive
+      archive:
+        source_hash: '8fee410bc25628fa5310b33af1b362edcfe39533294a8325f3ed2cefac97c005'
+      suffix: tgz
+...

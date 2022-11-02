@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('os_family') == MacOS.
+#
+# You just need to add the key:values for this `os_family` that differ
+# from `defaults.yaml` + `<osarch>.yaml`.
+#
+# If you do not need to provide defaults via the `os_family` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+---
+{%- if grains.os == 'MacOS' %}
+    {%- set rootuser = salt['cmd.run']("stat -f '%Su' /dev/console") %}
+    {%- set rootgroup = salt['cmd.run']("stat -f '%Sg' /dev/console") %}
+{%- endif %}
+
+values:
+  identity:
+    rootuser: {{ rootuser | d('') }}
+  pkg:
+    deps:
+      - python3-docker        # homebrew
+      - docker-machine        # homebrew
+    docker:
+      name: Docker            # Docker Desktop (docker=homebrew)
+      environ_file: /etc/defaults/docker
+      use_upstream: desktop   # package or desktop (archive=docker client)
+      uri_a: 'https://download.docker.com/mac/static/stable/'
+      archive:
+        source_hash: '487bb7179873e4b5f06b70f521a806d84edf7dddbeb4153dfc38b508faef5ab2'
+      uri_d: 'https://desktop.docker.com/mac/stable/Docker'
+      desktop:
+        source_hash: 'db78429815fd571bbed319ece03fbe227a3d497b7d1d37c87b0e5a3600b9a23b'
+      suffix: '.dmg'
+    compose:
+      name: docker-compose   # homebrew
+      use_upstream: package   # Docker Desktop
+      archive:
+        source: 'https://github.com/docker/compose/releases/latest/download/docker-compose-Darwin-x86_64'
+        source_hash: null
+...

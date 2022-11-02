@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('os_family') == Windows.
+#
+# You just need to add the key:values for this `os_family` that differ
+# from `defaults.yaml` + `<osarch>.yaml`.
+#
+# If you do not need to provide defaults via the `os_family` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+{%- if grains.os == 'Windows' %}
+    {%- set rootuser = salt['cmd.run']("whoami").split("\\")[1] %}
+{%- endif %}
+
+---
+values:
+  div: '\'
+  dir:
+    base: C:\\docker
+    source: C:\\docker\src\libs
+    operators: C:\\docker\src
+    tmp: C:\\temp\docker
+  identity:
+    rootuser: {{ rootuser | d('') }}
+  pkg:
+    deps:
+      - docker-cli
+    docker:
+      name: Docker-Desktop     # choco=docker-machine
+      use_upstream: desktop    # choco or desktop
+      uri_d: 'https://desktop.docker.com/win/stable/Docker%20Desktop%20Installer'
+      desktop:
+        source_hash: 'c3d19fa55950c4311477e8977c6cbaf7fe866942e9a2df7ac9d296b8c8305df5'
+      suffix: '.exe'
+    compose:
+      use_upstream: null    # included in docker-desktop
+...

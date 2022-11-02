@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('os_family') == RedHat.
+#
+# You just need to add the key:values for this `os_family` that differ
+# from `defaults.yaml` + `<osarch>.yaml`.
+#
+# If you do not need to provide defaults via the `os_family` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+---
+values:
+  pkg:
+    deps:
+      - python3-pip
+      - iptables
+      - git
+      - tar
+    docker:
+      # environ_file: /etc/sysconfig/docker
+      repo:
+        name: docker-ce
+        baseurl: 'https://download.docker.com/linux/{{ grains.os|lower }}/$releasever/$basearch/stable'
+        file: '/etc/yum.repos.d/docker-ce.repo'
+        gpgkey: 'https://download.docker.com/linux/{{ grains.os|lower }}/gpg'
+...

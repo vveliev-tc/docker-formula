@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('os') == Raspbian.
+#
+# You just need to add the key:values for this `os` that differ
+# from `defaults.yaml` + `<osarch>.yaml` + `<os_family>.yaml`.
+#
+# If you do not need to provide defaults via the `os` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+---
+values:
+  pkg:
+    docker:
+      repo:
+                {%- if 'oscodename' in grains %}
+        name: deb [arch=armhf] https://download.docker.com/linux/{{ grains.os|lower }} {{ grains.oscodename }} stable
+                {%- endif %}
+        file: /etc/apt/sources.list.d/docker.list
+        gpgkey: "https://download.docker.com/linux/{{ grains.os|lower }}/gpg"
+
+    compose:
+      name: docker-compose
+      use_upstream: package
+...

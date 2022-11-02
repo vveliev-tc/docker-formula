@@ -20,9 +20,6 @@ ignore: |
   test/**/states/**/*.sls
   .kitchen/
   kitchen.vagrant.yml
-  docker/osarchmap.yaml
-  docker/osfamilymap.yaml
-  docker/osmap.yaml
 
 yaml-files:
   # Default settings

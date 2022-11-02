@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('osarch') == armhf.
+#
+# You just need to add the key:values for this `osarch` that differ
+# from `defaults.yaml`.
+#
+# If you do not need to provide defaults via the `osarch` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+---
+values:
+  arch: armhf
+  pkg:
+    docker:
+                {%- if grains.os == 'Raspbian' %}
+      use_upstream: repo
+                {%- else %}
+      use_upstream: archive
+                {%- endif %}
+      archive:
+        source_hash: '5e757cf65d99b0326f49cabbfc3b9a65151cb569f04fcb64a7a0c7424772c7cf'
+      suffix: tgz
+...

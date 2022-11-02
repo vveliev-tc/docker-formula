@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('osarch') == armel.
+#
+# You just need to add the key:values for this `osarch` that differ
+# from `defaults.yaml`.
+#
+# If you do not need to provide defaults via the `osarch` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+---
+values:
+  arch: armel
+  pkg:
+    docker:
+      use_upstream: archive
+      archive:
+        source_hash: '16e633ee6615432e5f5942f3a8cf588db1a6958521e12c3eca585ad3113d3de9'
+      suffix: tgz
+...

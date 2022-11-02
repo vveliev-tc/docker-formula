@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set values specific to:
+#   salt['config.get']('os') == OEL.
+#
+# You just need to add the key:values for this `os` that differ
+# from `defaults.yaml` + `<osarch>.yaml` + `<os_family>.yaml`.
+#
+# If you do not need to provide defaults via the `os` config,
+# you can remove this file or provide at least an empty dict, e.g.
+# values: {}
+---
+values:
+  pkg:
+    deps:
+      - selinux-policy-minimum
+      - python3-dnf-plugin-versionlock
+      - python3-docker
+    docker:
+      repo:
+        baseurl: 'https://download.docker.com/linux/fedora/$releasever/$basearch/stable'
+        file: '/etc/yum.repos.d/docker-ce.repo'
+        gpgkey: 'https://download.docker.com/linux/fedora/gpg'
+
+...

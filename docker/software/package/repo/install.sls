@@ -2,7 +2,7 @@
 # vim: ft=sls
 
 {%- set tplroot = tpldir.split('/')[0] %}
-{%- from tplroot ~ "/map.jinja" import data as d with context %}
+{%- from tplroot ~ "/jinja/map.jinja" import data as d with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
 {%- if 'repo' in d.pkg.docker and d.pkg.docker.repo %}
